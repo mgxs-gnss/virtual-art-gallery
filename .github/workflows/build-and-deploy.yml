@@ -2,7 +2,7 @@ name: GNSS pipeline
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   Deploy:
