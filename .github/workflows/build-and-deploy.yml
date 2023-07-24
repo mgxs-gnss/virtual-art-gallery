@@ -1,31 +1,31 @@
-name: Build and Deploy
-
+name: GNSS pipeline
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  build:
+  Deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          node-version: '12.x'
-      - name: Install dependencies
-        run: npm ci
-      - name: Build
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Install npm packages
+        run: npm install
+
+      - name: Build react
         run: npm run build
-      - name: Remove build files from gitignore
-        run: |
-          sed -i '/build.html/d' .gitignore
-          sed -i '/images/images.json/d' .gitignore
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages
-          folder: .
-          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync to S3
+        run: aws s3 sync ./build ${{ secrets.AWS_S3_BUCKET }} --follow-symlinks --delete
+
+      # - name: Invalidate CloudFront
+      #   run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT }} --paths "/*"

@@ -1,22 +1,19 @@
-'use strict';
+"use strict";
 
 const loadTexture = async (texture, url) => {
-    const result = await fetch(url);
-    const blob = await result.blob();
-    const data = await createImageBitmap(blob);
-    texture({data,
-        wrapS: 'repeat',
-        wrapT: 'repeat'
-    });
+  const result = await fetch(url);
+  const blob = await result.blob();
+  const data = await createImageBitmap(blob);
+  texture({ data, wrapS: "repeat", wrapT: "repeat" });
 };
 
 module.exports = (regl, data, useReflexion) => {
-    const wallTexture = regl.texture();
-    const floorTexture = regl.texture();
-    loadTexture(wallTexture, "res/wall.jpg");
-    loadTexture(floorTexture, "res/floor.jpg");
-    return regl({
-        frag: `
+  const wallTexture = regl.texture();
+  const floorTexture = regl.texture();
+  loadTexture(wallTexture, "res/wall.jpg");
+  loadTexture(floorTexture, "res/floor.jpg");
+  return regl({
+    frag: `
         precision lowp float;
         varying vec3 v_pos, v_relativepos, v_normal;
         uniform sampler2D wallTexture;
@@ -29,20 +26,20 @@ module.exports = (regl, data, useReflexion) => {
         }
 
         void main() {
-            vec3 totalLight = texture2D(wallTexture, vec2(v_pos.x + v_pos.z, 7.0-v_pos.y)/8.0).rgb;
+            vec3 totalLight = texture2D(wallTexture, vec2(v_pos.x + v_pos.z, 7.0-v_pos.y)/8.0).rgb *.25;
             float dist = length(v_relativepos);
             totalLight = mix(totalLight, vec3(90.0,92.0,95.0)/255.0, step(6.99, v_pos.y));
             totalLight *= mix(0.7, 1.0, smoothstep(0.1, 0.12, v_pos.y));
             totalLight *= abs(v_normal.x)/64.0 + 1.0;
             if(v_normal.y > 0.0) {
-                totalLight = 0.47+0.1*texture2D(floorTexture, v_pos.xz / 8.0).rgb;
+                totalLight = 0.47+0.1*texture2D(floorTexture, v_pos.xz / 28.0).rgb * .25;
             }
-            totalLight *= (0.5 + 0.5*hue2rgb(0.5 + (v_pos.x + v_pos.z) / 160.0)); //color variation
+            totalLight *= (0.5 + 0.5*hue2rgb(0.5 + (v_pos.x + v_pos.z) / 160.0)) * .25; //color variation
             float alpha = .98+smoothstep(150.,0.,dist)-v_normal.y; // reflexion
             gl_FragColor = vec4(totalLight, ${useReflexion ? "alpha" : "1.0"});
         }`,
 
-        vert: `
+    vert: `
         precision highp float;
         uniform mat4 proj, view;
         attribute vec3 position, normal;
@@ -57,24 +54,26 @@ module.exports = (regl, data, useReflexion) => {
             gl_Position = proj * view * vec4(pos, 1);
         }`,
 
-        attributes: {
-            position: data.position,
-            normal: data.normal
-        },
+    attributes: {
+      position: data.position,
+      normal: data.normal,
+    },
 
-        blend: useReflexion ? {
-            enable: true,
-            func: {
-                src: 'src alpha',
-                dst: 'one minus src alpha'
-            },
-        } : {},
+    blend: useReflexion
+      ? {
+          enable: true,
+          func: {
+            src: "src alpha",
+            dst: "one minus src alpha",
+          },
+        }
+      : {},
 
-        uniforms: {
-            wallTexture,
-            floorTexture
-        },
+    uniforms: {
+      wallTexture,
+      floorTexture,
+    },
 
-        elements: new Uint32Array(data.elements)
-    });
+    elements: new Uint32Array(data.elements),
+  });
 };

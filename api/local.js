@@ -1,17 +1,24 @@
-'strict mode';
+"strict mode";
 
-// Local images
-const images = require("../images/images.json").images.map((img,i)=>({...img, image_id:i}));
+let list;
+
 module.exports = {
-    fetchList: async function (from, count) {
-        return images.slice(from, from + count);//.map((img,i)=>({...img, image_id:i+from}));
-    },
-    fetchImage: async function (obj, advicedResolution) {
-        const url = "images/" + obj.file;
-        const blob = await fetch(url).then(res => res.blob());
-        return {
-            title: obj.title,
-            image: blob
-        };
-    }
+  fetchList: async function (from, count) {
+    if (list) return list.slice(from, from + count);
+    list = (await (await fetch("https://api.mgxs.co/mem/list")).json()).map(
+      (a) => ({ image_id: a.url })
+    );
+    return list.slice(from, from + count);
+  },
+  fetchImage: async function (obj, advicedResolution) {
+    const blob = await fetch(obj.image_id).then((res) => res.blob());
+    const index = obj.image_id.lastIndexOf("_");
+    const gnss = obj.image_id
+      .substring(index + 1, obj.image_id.length)
+      .split(".")[0];
+    return {
+      title: `MEM from GNSS #${gnss}`,
+      image: blob,
+    };
+  },
 };
