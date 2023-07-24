@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "budo src/index.js --live",
-    "build": "browserify -p tinyify src/index.js | htmlify base.html > build.html"
+    "build": "rimraf build && mkdir build && cp -R ./res ./build/res && browserify -p tinyify src/index.js | htmlify base.html > build/index.html"
   },
   "license": "MIT",
   "dependencies": {
@@ -24,6 +24,7 @@
     "browserify": "^16.5.2",
     "budo": "^11.6.4",
     "inline-htmlify": "^2.0.1",
+    "rimraf": "^5.0.1",
     "tinyify": "^3.0.0",
     "uglify-js": "^3.14.1"
   },
