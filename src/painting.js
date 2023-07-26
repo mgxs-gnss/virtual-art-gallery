@@ -29,7 +29,7 @@ module.exports = (regl) => {
 	void main () {
 		float frontMask = smoothstep(0.9, 1.0, uv.z);
 		float paintingMask = step(0.001, uv.z);
-		float shadowAlpha = boxShadow(vec2(.5), vec2(.7), abs(uv.xy-vec2(.5)), 0.02);
+		float shadowAlpha = boxShadow(vec2(.5), vec2(.7), abs(uv.xy-vec2(.5)), 0.01);
 		float wrapping = 0.005 * sign(uv.x-.5) * (1.-uv.z);
 		float sideShading = pow(uv.z/4.0, 0.1);
 		vec3 col = texture2D(tex, uv.xy - vec2(wrapping, 0.)).rgb;

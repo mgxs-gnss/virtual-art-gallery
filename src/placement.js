@@ -2,10 +2,10 @@
 const texture = require('./image');
 const mat4 = require('gl-mat4');
 
-const renderDist = 20;
-const loadDist = 20;
-const unloadDist = 40;
-const fovxMargin = Math.PI/32;
+const renderDist = 40;
+const loadDist = 40;
+const unloadDist = 80;
+const fovxMargin = Math.PI/82;
 
 const dynamicResPeriod = 3000;
 let dynamicRes = "high";

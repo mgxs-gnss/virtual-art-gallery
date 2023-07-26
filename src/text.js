@@ -8,7 +8,7 @@ const maxWidth = (textCanvas.width = textCanvas.height = 1024);
 const ctx = textCanvas.getContext("2d");
 ctx.mozImageSmoothingEnabled = false;
 ctx.webkitImageSmoothingEnabled = false;
-ctx.font = textHeight + "px Verdana";
+ctx.font = textHeight + "px Arial";
 ctx.textBaseline = "bottom";
 ctx.fillStyle = "#aaa";
 
@@ -88,7 +88,7 @@ module.exports = {
         
             void main () {
                 float c = texture2D(tex, uv).r;
-                gl_FragColor = vec4(vec3(255.), c);
+                gl_FragColor = vec4(vec3(0.), c);
             }`,
       vert: `
             precision highp float;

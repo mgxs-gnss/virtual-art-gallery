@@ -10,8 +10,8 @@ const loadTexture = async (texture, url) => {
 module.exports = (regl, data, useReflexion) => {
   const wallTexture = regl.texture();
   const floorTexture = regl.texture();
-  loadTexture(wallTexture, "res/wall.jpg");
-  loadTexture(floorTexture, "res/floor.jpg");
+  loadTexture(wallTexture, "res/wall2.jpg");
+  loadTexture(floorTexture, "res/floor2.jpg");
   return regl({
     frag: `
         precision lowp float;
@@ -32,10 +32,10 @@ module.exports = (regl, data, useReflexion) => {
             totalLight *= mix(0.7, 1.0, smoothstep(0.1, 0.12, v_pos.y));
             totalLight *= abs(v_normal.x)/64.0 + 1.0;
             if(v_normal.y > 0.0) {
-                totalLight = 0.47+.5*texture2D(floorTexture, v_pos.xz / 8.0).rgb;
+                totalLight = .1*texture2D(floorTexture, v_pos.xz / 8.0).rgb;
             }
             totalLight *= (0.5 + 0.5*hue2rgb(0.5 + (v_pos.x + v_pos.z) / 160.0)); //color variation
-            float alpha = .98+smoothstep(150.,0.,dist)-v_normal.y; // reflexion
+            float alpha = .995+smoothstep(150.,0.,dist)-v_normal.y; // reflexion
             gl_FragColor = vec4(totalLight, ${useReflexion ? "alpha" : "1.0"});
         }`,
 
@@ -47,9 +47,10 @@ module.exports = (regl, data, useReflexion) => {
         uniform float yScale;
         void main() {
             vec3 pos = position;
-            v_pos = pos;
+            v_pos = pos+vec3(.0,-.0,.0);
             v_relativepos = (view * vec4(pos, 1)).xyz;
             pos.y *= yScale;
+            pos.y *= 2.;
             v_normal = normal;
             gl_Position = proj * view * vec4(pos, 1);
         }`,
